@@ -15,7 +15,7 @@ func NewB2GrowableStack() *B2GrowableStack {
 }
 
 type StackElement struct {
-	value interface{} // All types satisfy the empty interface, so we can store anything here.
+	value int // All types satisfy the empty interface, so we can store anything here.
 	next  *StackElement
 }
 
@@ -25,18 +25,18 @@ func (s B2GrowableStack) GetCount() int {
 }
 
 // Push a new element onto the stack
-func (s *B2GrowableStack) Push(value interface{}) {
+func (s *B2GrowableStack) Push(value int) {
 	s.top = &StackElement{value, s.top}
 	s.size++
 }
 
 // Remove the top element from the stack and return it's value
 // If the stack is empty, return nil
-func (s *B2GrowableStack) Pop() (value interface{}) {
+func (s *B2GrowableStack) Pop() (value int) {
 	if s.size > 0 {
 		value, s.top = s.top.value, s.top.next
 		s.size--
 		return
 	}
-	return nil
+	return 0
 }

@@ -302,6 +302,9 @@ func (fix *B2Fixture) DestroyProxies(broadPhase *B2BroadPhase) {
 	fix.M_proxyCount = 0
 }
 
+var s_aabb1 = MakeB2AABB()
+var s_aabb2 = MakeB2AABB()
+
 func (fix *B2Fixture) Synchronize(broadPhase *B2BroadPhase, transform1 B2Transform, transform2 B2Transform) {
 
 	if fix.M_proxyCount == 0 {
@@ -313,12 +316,21 @@ func (fix *B2Fixture) Synchronize(broadPhase *B2BroadPhase, transform1 B2Transfo
 		proxy := &fix.M_proxies[i]
 
 		// Compute an AABB that covers the swept shape (may miss some rotation effect).
-		aabb1 := MakeB2AABB()
-		aabb2 := MakeB2AABB()
-		fix.M_shape.ComputeAABB(&aabb1, transform1, proxy.ChildIndex)
-		fix.M_shape.ComputeAABB(&aabb2, transform2, proxy.ChildIndex)
 
-		proxy.Aabb.CombineTwoInPlace(aabb1, aabb2)
+		s_aabb1.LowerBound.X=0
+		s_aabb1.LowerBound.Y=0
+		s_aabb1.UpperBound.X=0
+		s_aabb1.UpperBound.Y=0
+
+		s_aabb2.LowerBound.X=0
+		s_aabb2.LowerBound.Y=0
+		s_aabb2.UpperBound.X=0
+		s_aabb2.UpperBound.Y=0
+
+		fix.M_shape.ComputeAABB(&s_aabb1, transform1, proxy.ChildIndex)
+		fix.M_shape.ComputeAABB(&s_aabb2, transform2, proxy.ChildIndex)
+
+		proxy.Aabb.CombineTwoInPlace(s_aabb1, s_aabb2)
 
 		displacement := B2Vec2Sub(transform2.P, transform1.P)
 

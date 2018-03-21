@@ -11,8 +11,7 @@ type B2TreeRayCastCallback func(input B2RayCastInput, nodeId int) float64
 const B2_nullNode = -1
 
 type B2TreeNode struct {
-
-	/// Enlarged AABB
+	// / Enlarged AABB
 	Aabb B2AABB
 
 	UserData interface{}
@@ -21,7 +20,7 @@ type B2TreeNode struct {
 	// {
 	Parent int
 	Next   int
-	//};
+	// };
 
 	Child1 int
 	Child2 int
@@ -34,16 +33,15 @@ func (node B2TreeNode) IsLeaf() bool {
 	return node.Child1 == B2_nullNode
 }
 
-/// A dynamic AABB tree broad-phase, inspired by Nathanael Presson's btDbvt.
-/// A dynamic tree arranges data in a binary tree to accelerate
-/// queries such as volume queries and ray casts. Leafs are proxies
-/// with an AABB. In the tree we expand the proxy AABB by b2_fatAABBFactor
-/// so that the proxy AABB is bigger than the client object. This allows the client
-/// object to move by small amounts without triggering a tree update.
-///
-/// Nodes are pooled and relocatable, so we use node indices rather than pointers.
+// / A dynamic AABB tree broad-phase, inspired by Nathanael Presson's btDbvt.
+// / A dynamic tree arranges data in a binary tree to accelerate
+// / queries such as volume queries and ray casts. Leafs are proxies
+// / with an AABB. In the tree we expand the proxy AABB by b2_fatAABBFactor
+// / so that the proxy AABB is bigger than the client object. This allows the client
+// / object to move by small amounts without triggering a tree update.
+// /
+// / Nodes are pooled and relocatable, so we use node indices rather than pointers.
 type B2DynamicTree struct {
-
 	// Public members:
 	// None
 
@@ -56,7 +54,7 @@ type B2DynamicTree struct {
 
 	M_freeList int
 
-	/// This is used to incrementally traverse the tree for re-balancing.
+	// / This is used to incrementally traverse the tree for re-balancing.
 	M_path int
 
 	M_insertionCount int
@@ -72,12 +70,30 @@ func (tree B2DynamicTree) GetFatAABB(proxyId int) B2AABB {
 	return tree.M_nodes[proxyId].Aabb
 }
 
+type stackie struct {
+	list []int
+}
+
+func (s *stackie) Push(i int) {
+	s.list = append(s.list, i)
+}
+
+func (s *stackie) Pop() int {
+	x := s.list[len(s.list)-1]
+	s.list = s.list[:len(s.list)-1]
+	return x
+}
+
+func (s *stackie) GetCount() int {
+	return len(s.list)
+}
+
 func (tree *B2DynamicTree) Query(queryCallback B2TreeQueryCallback, aabb B2AABB) {
-	stack := NewB2GrowableStack()
+	stack := stackie{list:make([]int,0,100)}
 	stack.Push(tree.M_root)
 
 	for stack.GetCount() > 0 {
-		nodeId := stack.Pop().(int)
+		nodeId := stack.Pop()
 		if nodeId == B2_nullNode {
 			continue
 		}
@@ -123,11 +139,11 @@ func (tree B2DynamicTree) RayCast(rayCastCallback B2TreeRayCastCallback, input B
 		segmentAABB.UpperBound = B2Vec2Max(p1, t)
 	}
 
-	stack := NewB2GrowableStack()
+	stack := stackie{list:make([]int,0,100)}
 	stack.Push(tree.M_root)
 
 	for stack.GetCount() > 0 {
-		nodeId := stack.Pop().(int)
+		nodeId := stack.Pop()
 		if nodeId == B2_nullNode {
 			continue
 		}
@@ -175,13 +191,13 @@ func (tree B2DynamicTree) RayCast(rayCastCallback B2TreeRayCastCallback, input B
 	}
 }
 
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////////////
 // B2DynamicTree.cpp
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////////////
 
 func MakeB2DynamicTree() B2DynamicTree {
 
@@ -444,7 +460,7 @@ func (tree *B2DynamicTree) InsertLeaf(leaf int) {
 		index = tree.M_nodes[index].Parent
 	}
 
-	//Validate();
+	// Validate();
 }
 
 func (tree *B2DynamicTree) RemoveLeaf(leaf int) {
@@ -756,7 +772,7 @@ func (tree B2DynamicTree) GetMaxBalance() int {
 }
 
 func (tree *B2DynamicTree) RebuildBottomUp() {
-	//int* nodes = (int*)b2Alloc(m_nodeCount * sizeof(int));
+	// int* nodes = (int*)b2Alloc(m_nodeCount * sizeof(int));
 	nodes := make([]int, tree.M_nodeCount)
 	count := 0
 
@@ -819,7 +835,7 @@ func (tree *B2DynamicTree) RebuildBottomUp() {
 	}
 
 	tree.M_root = nodes[0]
-	//b2Free(nodes)
+	// b2Free(nodes)
 
 	tree.Validate()
 }

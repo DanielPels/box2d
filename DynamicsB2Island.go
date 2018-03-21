@@ -4,7 +4,7 @@ import (
 	"math"
 )
 
-/// This is an internal class.
+// / This is an internal class.
 type B2Island struct {
 	M_listener B2ContactListenerInterface
 
@@ -49,13 +49,13 @@ func (island *B2Island) Add(joint B2JointInterface) { // joint has to be a point
 	island.M_jointCount++
 }
 
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////////////
 // B2Island.cpp
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////////////
 
 /*
 Position Correction Notes
@@ -260,15 +260,8 @@ func (island *B2Island) Solve(profile *B2Profile, step B2TimeStep, gravity B2Vec
 	solverData.Positions = island.M_positions
 	solverData.Velocities = island.M_velocities
 
-	// Initialize velocity constraints.
-	contactSolverDef := MakeB2ContactSolverDef()
-	contactSolverDef.Step = step
-	contactSolverDef.Contacts = island.M_contacts
-	contactSolverDef.Count = island.M_contactCount
-	contactSolverDef.Positions = island.M_positions
-	contactSolverDef.Velocities = island.M_velocities
 
-	contactSolver := MakeB2ContactSolver(&contactSolverDef)
+	contactSolver := MakeB2ContactSolver(step, island.M_contacts, island.M_contactCount, island.M_positions, island.M_velocities)
 	contactSolver.InitializeVelocityConstraints()
 
 	if step.WarmStarting {
@@ -403,14 +396,7 @@ func (island *B2Island) SolveTOI(subStep B2TimeStep, toiIndexA int, toiIndexB in
 		island.M_velocities[i].W = b.M_angularVelocity
 	}
 
-	contactSolverDef := MakeB2ContactSolverDef()
-
-	contactSolverDef.Contacts = island.M_contacts
-	contactSolverDef.Count = island.M_contactCount
-	contactSolverDef.Step = subStep
-	contactSolverDef.Positions = island.M_positions
-	contactSolverDef.Velocities = island.M_velocities
-	contactSolver := MakeB2ContactSolver(&contactSolverDef)
+	contactSolver := MakeB2ContactSolver(subStep, island.M_contacts, island.M_contactCount, island.M_positions, island.M_velocities)
 
 	// Solve position constraints.
 	for i := 0; i < subStep.PositionIterations; i++ {
